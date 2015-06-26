@@ -1,11 +1,22 @@
-var Hapi = require('hapi'),
-    Route = require('./route'),
-    config = require('./config');
-
+var Hapi = require('hapi');
+var Route = require('./route');
+var config = require('./config');
 var server = new Hapi.Server();
-server.connection({ port: config.server.port });
 
+for(var i in config){
+    server.connection(config[i]);
+}
 server.route(Route.endpoints);
-server.start(function() {
-    console.log('Server started ', server.info.uri);
+
+server.register(require('./chat'), function (err) {
+    if (err) {
+        throw err;
+    }
+    server.start(function() {
+        for(var i in config){
+            console.log("Server started at port: " + config[i].port + " for " + config
+
+                    [i].labels);
+        }
+    });
 });
